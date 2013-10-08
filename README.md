@@ -1,4 +1,4 @@
 pgist
 =====
 
-A Python wrapper to access GitHub gists
+A Python command-line wrapper with github3.py library to access GitHub Gist.

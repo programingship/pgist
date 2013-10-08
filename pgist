@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+
+from github3 import authorize
+from getpass import getuser, getpass
+from github3 import login
+
+import argparse
+import os
+import sys
+
+class Gist(object):
+    def __init__(self):
+        try:
+            with open(os.path.expanduser('~/.pgist'), 'r') as fd:
+                self.token = fd.readline()
+        except IOError:
+            raise SystemExit('Read .pgist file failed, please use '\
+                    '`pgist --setup` to request token')
+
+        self.gh = login(token=self.token)
+
+    def list_gists(self):
+        print 'List of all your gists: \n'
+        for gist in self.gh.iter_gists():
+            print gist.html_url
+
+def token_request():
+    user = raw_input('GitHub username(default is {0}): '.format(getuser())) or getuser()
+    password = ''
+
+    while not password:
+        password = getpass('GitHub password for {0}: '.format(user))
+
+    note = 'pgist'
+    note_url = 'https://github.com/douglarek/pgist'
+    scopes = ['user', 'gist']
+
+    auth = authorize(user, password, scopes, note, note_url)
+
+    with open(os.path.expanduser('~/.pgist'), 'w') as fd:
+        fd.write(auth.token)
+
+    print 'Done ...'
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-l", "--list", help="List of all your gists",
+                        action="store_true")
+    parser.add_argument("--setup", help="Request app login token",
+                        action="store_true")
+    args = parser.parse_args()
+    if args.list:
+        Gist().list_gists()
+    elif args.setup:
+        token_request()
+    else:
+        print parser.print_help()
+
+if __name__ == '__main__':
+    sys.exit(main())
