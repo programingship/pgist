@@ -15,7 +15,7 @@ class Gist(object):
                 self.token = fd.readline()
         except IOError:
             raise SystemExit('Read .pgist file failed, please use '\
-                    '`pgist --setup` to request token')
+                    '`pgist setup` to request token')
 
         self.gh = login(token=self.token)
 
@@ -46,21 +46,20 @@ def token_request():
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--setup", help="Request app login token",
-                        action="store_true")
 
     subparsers = parser.add_subparsers(dest='parser_name', help='Subcomamnd help')
     parser_list = subparsers.add_parser('list', help='List of all your public gists')
     parser_list.add_argument("-p", "--private", help="List of all your gists contains private ones",
                         action="store_true")
+    parser_setup = subparsers.add_parser('setup', help='Request app login token')
 
     args = parser.parse_args(argv)
 
     if hasattr(args, 'parser_name'):
         if args.parser_name == 'list':
             Gist().list_gists(private=args.private)
-    elif args.setup:
-        token_request()
+        elif args.parser_name == 'setup':
+            token_request()
     else:
         print parser.print_help()
 
