@@ -19,10 +19,12 @@ class Gist(object):
 
         self.gh = login(token=self.token)
 
-    def list_gists(self):
-        print 'List of all your gists: \n'
-        for gist in self.gh.iter_gists():
-            print gist.html_url
+    def list_gists(self, private=False):
+        print 'List of {0} gists: \n'.format(['public','all'][private])
+        if private:
+            print '\n'.join([gist.html_url for gist in self.gh.iter_gists()])
+        else:
+            print '\n'.join([gist.html_url for gist in self.gh.iter_gists() if gist.public])
 
 def token_request():
     user = raw_input('GitHub username(default is {0}): '.format(getuser())) or getuser()
@@ -42,15 +44,21 @@ def token_request():
 
     print 'Done ...'
 
-def main():
+def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-l", "--list", help="List of all your gists",
-                        action="store_true")
     parser.add_argument("--setup", help="Request app login token",
                         action="store_true")
-    args = parser.parse_args()
-    if args.list:
-        Gist().list_gists()
+
+    subparsers = parser.add_subparsers(dest='parser_name', help='Subcomamnd help')
+    parser_list = subparsers.add_parser('list', help='List of all your public gists')
+    parser_list.add_argument("-p", "--private", help="List of all your gists contains private ones",
+                        action="store_true")
+
+    args = parser.parse_args(argv)
+
+    if hasattr(args, 'parser_name'):
+        if args.parser_name == 'list':
+            Gist().list_gists(private=args.private)
     elif args.setup:
         token_request()
     else:
@@ -58,6 +66,6 @@ def main():
 
 if __name__ == '__main__':
     try:
-        sys.exit(main())
+        sys.exit(main(sys.argv[1:]))
     except KeyboardInterrupt:
         raise SystemExit('\nOk, Goodbye.')
