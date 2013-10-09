@@ -22,9 +22,12 @@ class Gist(object):
     def list_gists(self, private=False):
         print 'List of {0} gists: \n'.format(['public','all'][private])
         if private:
-            print '\n'.join([gist.html_url for gist in self.gh.iter_gists()])
+            for gist in self.gh.iter_gists():
+                print [g.name for g in gist.iter_files()][0].ljust(30), gist.html_url
         else:
-            print '\n'.join([gist.html_url for gist in self.gh.iter_gists() if gist.public])
+            for gist in self.gh.iter_gists():
+                if gist.public:
+                    print [g.name for g in gist.iter_files()][0].ljust(30), gist.html_url
 
 def token_request():
     user = raw_input('GitHub username(default is {0}): '.format(getuser())) or getuser()
