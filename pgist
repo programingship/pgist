@@ -57,4 +57,7 @@ def main():
         print parser.print_help()
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        raise SystemExit('\nOk, Goodbye.')
