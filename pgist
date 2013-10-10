@@ -1,65 +1,38 @@
 #!/usr/bin/env python
 
+"""A Python command-line wrapper with github3.py library to access GitHub Gist.
+"""
+
 from github3 import authorize
 from getpass import getuser, getpass
 from github3 import login
 from github3.models import GitHubError
 
 import argparse
+from functools import wraps
 import os
 import sys
 
-class Gist(object):
-    def __init__(self):
-        try:
-            with open(os.path.expanduser('~/.pgist'), 'r') as fd:
-                self.token = fd.readline()
-        except IOError:
-            raise SystemExit('Read .pgist file failed, please use '\
-                    '`pgist setup` to request token')
-
-        self.gh = login(token=self.token)
-
-    def list_gists(self, private=False):
-        print 'List of {0} gists: \n'.format(['public','all'][private])
-        if private:
-            for gist in self.gh.iter_gists():
-                print [g.name for g in gist.iter_files()][0].ljust(30), gist.html_url
-        else:
-            for gist in self.gh.iter_gists():
-                if gist.public:
-                    print [g.name for g in gist.iter_files()][0].ljust(30), gist.html_url
-
-    def create_gist(self, description=None, files=(), public=True, anonymous=False):
-        if description is None:
-            description = ''
-
-        files = [f for f in files if os.path.exists(f)]
-        upload_files = {}
-        for f in files:
-            with open(f, 'r') as fd:
-                content = fd.readlines()
-                if not content:
-                    continue
-                upload_files[os.path.basename(f)] = {'content' : ''.join(content)}
-
-        if not upload_files:
-            raise SystemExit('All of your files are empty, WTF?')
-
-        try:
-            if anonymous:
-                from github3 import create_gist
-                gist = create_gist(description, upload_files)
-            else:
-                gist = self.gh.create_gist(description, upload_files, public)
-        except GitHubError, ghe:
-            # FIXME will fix if tested
-            raise SystemExit(ghe)
-
-        print gist.html_url
+def auth_check(func):
+    """Decorator to note which object methods require authorization"""
+    @wraps(func)
+    def check_wrapper(self, *args, **kwargs):
+        """A wrapper to check if a token exists"""
+        if not kwargs.get('anonymous'):
+            try:
+                with open(os.path.expanduser('~/.pgist'), 'r') as tkf:
+                    self.token = tkf.readline()
+                self.github = login(token=self.token)
+            except IOError:
+                raise SystemExit('Read .pgist file failed, please use '\
+                        '`pgist setup` to request token')
+        return func(self, *args, **kwargs)
+    return check_wrapper
 
 def token_request():
-    user = raw_input('GitHub username(default is {0}): '.format(getuser())) or getuser()
+    """Request app token from GitHub to operate gists"""
+    user = raw_input('GitHub username(default is {0}): '.format(getuser())) \
+            or getuser()
     password = ''
 
     while not password:
@@ -72,37 +45,103 @@ def token_request():
     try:
         auth = authorize(user, password, scopes, note, note_url)
     except GitHubError:
-        raise SystemExit('Request app token failed, please check your username or password!')
+        raise SystemExit('Request app token failed, please check your username'\
+                'or password!')
 
-    with open(os.path.expanduser('~/.pgist'), 'w') as fd:
-        fd.write(auth.token)
+    with open(os.path.expanduser('~/.pgist'), 'w') as tkf:
+        tkf.write(auth.token)
 
     print 'Done ...'
 
+class Gist(object):
+    """Define known gist operations"""
+
+    def __init__(self):
+        self.token, self.github = None, None
+
+    @auth_check
+    def list_gists(self, private=False):
+        """List all gists or public only ones"""
+        print 'List of {0} gists: \n'.format(['public','all'][private])
+        if private:
+            for gist in self.github.iter_gists():
+                print [g.name for g in gist.iter_files()][0].ljust(30), \
+                        gist.html_url
+        else:
+            for gist in self.github.iter_gists():
+                if gist.public:
+                    print [g.name for g in gist.iter_files()][0].ljust(30), \
+                            gist.html_url
+
+    @auth_check
+    def create_gist(self, description=None, files=(), public=True, \
+            anonymous=False):
+        """Create public, private or anonymous gists"""
+        if description is None:
+            description = ''
+
+        files = [f for f in files if os.path.exists(f)]
+        upload_files = {}
+        for _ in files:
+            with open(_, 'r') as _fd:
+                content = _fd.readlines()
+                if not content:
+                    continue
+                upload_files[os.path.basename(_)] = {'content' : \
+                        ''.join(content)}
+
+        if not upload_files:
+            raise SystemExit('All of your files are empty, WTF?')
+
+        try:
+            if anonymous:
+                from github3 import create_gist
+                gist = create_gist(description, upload_files)
+            else:
+                gist = self.github.create_gist(description, upload_files, \
+                        public)
+        except GitHubError, ghe:
+            # FIXME will fix if tested
+            raise SystemExit(ghe)
+
+        print gist.html_url
+
 def main(argv):
+    """The main body"""
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest='parser_name', help='Subcomamnd help')
+    subparsers = parser.add_subparsers(dest='parser_name', \
+            help='subcomamnd help')
 
-    parser_list = subparsers.add_parser('list', help='list of all your public gists')
-    parser_list.add_argument("-p", "--private", help="list of all your gists contains private ones",
-                        action="store_true")
-    parser_setup = subparsers.add_parser('setup', help='request app login token')
+    parser_list = subparsers.add_parser('list', \
+            help='list of all your public gists')
+    parser_list.add_argument("-p", "--private", \
+            help="list of all your gists contains private ones", \
+            action="store_true")
+    subparsers.add_parser('setup', help='request app login token')
 
-    parser_create = subparsers.add_parser('create', help='create a public(private, or anonymous) gist')
-    parser_create.add_argument('files', nargs='+', type=os.path.abspath, help='files which will be uploaded, separate multiple ones with space')
+    parser_create = subparsers.add_parser('create', \
+            help='create a public(private, or anonymous) gist')
+    parser_create.add_argument('files', nargs='+', type=os.path.abspath, \
+            help='files which will be uploaded, '\
+            'separate multiple ones with space')
     parser_create.add_argument('-d', '--description', help='gist description')
-    parser_create.add_argument('-p', '--private', help='create private gist', action='store_true')
-    parser_create.add_argument('-a', '--anonymous', help='create anonymous gist', action='store_true')
+    parser_create.add_argument('-p', '--private', help='create private gist', \
+            action='store_true')
+    parser_create.add_argument('-a', '--anonymous', \
+            help='create anonymous gist', action='store_true')
 
     args = parser.parse_args(argv)
 
+    gist = Gist()
+
     if hasattr(args, 'parser_name'):
         if args.parser_name == 'list':
-            Gist().list_gists(private=args.private)
+            gist.list_gists(private=args.private)
         elif args.parser_name == 'setup':
             token_request()
         elif args.parser_name == 'create':
-            Gist().create_gist(args.description, args.files, [True, False][args.private], args.anonymous)
+            gist.create_gist(args.description, args.files, \
+                    [True, False][args.private], anonymous=args.anonymous)
     else:
         print parser.print_help()
 
