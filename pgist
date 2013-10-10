@@ -3,6 +3,7 @@
 from github3 import authorize
 from getpass import getuser, getpass
 from github3 import login
+from github3.models import GitHubError
 
 import argparse
 import os
@@ -29,6 +30,34 @@ class Gist(object):
                 if gist.public:
                     print [g.name for g in gist.iter_files()][0].ljust(30), gist.html_url
 
+    def create_gist(self, description=None, files=(), public=True, anonymous=False):
+        if description is None:
+            description = ''
+
+        files = [f for f in files if os.path.exists(f)]
+        upload_files = {}
+        for f in files:
+            with open(f, 'r') as fd:
+                content = fd.readlines()
+                if not content:
+                    continue
+                upload_files[os.path.basename(f)] = {'content' : ''.join(content)}
+
+        if not upload_files:
+            raise SystemExit('All of your files are empty, WTF?')
+
+        try:
+            if anonymous:
+                from github3 import create_gist
+                gist = create_gist(description, upload_files)
+            else:
+                gist = self.gh.create_gist(description, upload_files, public)
+        except GitHubError, ghe:
+            # FIXME will fix if tested
+            raise SystemExit(ghe)
+
+        print gist.html_url
+
 def token_request():
     user = raw_input('GitHub username(default is {0}): '.format(getuser())) or getuser()
     password = ''
@@ -40,7 +69,10 @@ def token_request():
     note_url = 'https://github.com/douglarek/pgist'
     scopes = ['user', 'gist']
 
-    auth = authorize(user, password, scopes, note, note_url)
+    try:
+        auth = authorize(user, password, scopes, note, note_url)
+    except GitHubError:
+        raise SystemExit('Request app token failed, please check your username or password!')
 
     with open(os.path.expanduser('~/.pgist'), 'w') as fd:
         fd.write(auth.token)
@@ -49,12 +81,18 @@ def token_request():
 
 def main(argv):
     parser = argparse.ArgumentParser()
-
     subparsers = parser.add_subparsers(dest='parser_name', help='Subcomamnd help')
-    parser_list = subparsers.add_parser('list', help='List of all your public gists')
-    parser_list.add_argument("-p", "--private", help="List of all your gists contains private ones",
+
+    parser_list = subparsers.add_parser('list', help='list of all your public gists')
+    parser_list.add_argument("-p", "--private", help="list of all your gists contains private ones",
                         action="store_true")
-    parser_setup = subparsers.add_parser('setup', help='Request app login token')
+    parser_setup = subparsers.add_parser('setup', help='request app login token')
+
+    parser_create = subparsers.add_parser('create', help='create a public(private, or anonymous) gist')
+    parser_create.add_argument('-f', '--files', type=os.path.abspath, help='upload files', action='append')
+    parser_create.add_argument('-d', '--description', help='gist description')
+    parser_create.add_argument('-p', '--private', help='create private gist', action='store_true')
+    parser_create.add_argument('-a', '--anonymous', help='create anonymous gist', action='store_true')
 
     args = parser.parse_args(argv)
 
@@ -63,6 +101,8 @@ def main(argv):
             Gist().list_gists(private=args.private)
         elif args.parser_name == 'setup':
             token_request()
+        elif args.parser_name == 'create':
+            Gist().create_gist(args.description, args.files, [True, False][args.private], args.anonymous)
     else:
         print parser.print_help()
 
