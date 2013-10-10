@@ -89,7 +89,7 @@ def main(argv):
     parser_setup = subparsers.add_parser('setup', help='request app login token')
 
     parser_create = subparsers.add_parser('create', help='create a public(private, or anonymous) gist')
-    parser_create.add_argument('-f', '--files', type=os.path.abspath, help='upload files', action='append')
+    parser_create.add_argument('files', nargs='+', type=os.path.abspath, help='files which will be uploaded, separate multiple ones with space')
     parser_create.add_argument('-d', '--description', help='gist description')
     parser_create.add_argument('-p', '--private', help='create private gist', action='store_true')
     parser_create.add_argument('-a', '--anonymous', help='create anonymous gist', action='store_true')
