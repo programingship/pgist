@@ -25,7 +25,7 @@ def auth_check(func):
                 self.github = login(token=self.token)
             except IOError:
                 raise SystemExit('Read .pgist file failed, please use '\
-                        '`pgist setup` to request token')
+                        '`pgist --login` to request token')
         return func(self, *args, **kwargs)
     return check_wrapper
 
@@ -108,42 +108,43 @@ class Gist(object):
 
 def main(argv):
     """The main body"""
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest='parser_name', \
-            help='subcomamnd help')
+    description = 'A Python command-line wrapper with github3.py library '\
+            'to access GitHub gists'
+    parser = argparse.ArgumentParser(description=description)
 
-    parser_list = subparsers.add_parser('list', \
-            help='list of all your public gists')
-    parser_list.add_argument("-p", "--private", \
-            help="list of all your gists contains private ones", \
-            action="store_true")
-    subparsers.add_parser('setup', help='request app login token')
-
-    parser_create = subparsers.add_parser('create', \
-            help='create a public(private, or anonymous) gist')
-    parser_create.add_argument('files', nargs='+', type=os.path.abspath, \
-            help='files which will be uploaded, '\
-            'separate multiple ones with space')
-    parser_create.add_argument('-d', '--description', help='gist description')
-    parser_create.add_argument('-p', '--private', help='create private gist', \
+    parser.add_argument('-l', '--list', \
+            help='list of all your public gists, '\
+            'with `-p` show all contains private ones', \
             action='store_true')
-    parser_create.add_argument('-a', '--anonymous', \
-            help='create anonymous gist', action='store_true')
+
+    parser.add_argument('-p', '--private', action='store_true')
+
+    parser.add_argument('files', nargs='*', type=os.path.abspath, \
+            help='files which will be uploaded, '\
+            'separate multiple ones with space, '\
+            'with `-d` add description; '\
+            '`-p` create a private one; '\
+            '`-a` create an anonymous one')
+    parser.add_argument('-d', '--description')
+    parser.add_argument('-a', '--anonymous', \
+            action='store_true')
+
+    parser.add_argument('--login', help='request app token', \
+            action='store_true')
 
     args = parser.parse_args(argv)
 
     gist = Gist()
 
-    if hasattr(args, 'parser_name'):
-        if args.parser_name == 'list':
-            gist.list_gists(private=args.private)
-        elif args.parser_name == 'setup':
-            token_request()
-        elif args.parser_name == 'create':
-            gist.create_gist(args.description, args.files, \
-                    [True, False][args.private], anonymous=args.anonymous)
+    if args.list:
+        gist.list_gists(private=[False, True][args.private])
+    elif args.files:
+        gist.create_gist(args.description, args.files, \
+                [True, False][args.private], anonymous=args.anonymous)
+    elif args.login:
+        token_request()
     else:
-        print parser.print_help()
+        parser.print_help()
 
 if __name__ == '__main__':
     try:
