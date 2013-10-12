@@ -89,10 +89,10 @@ class Gist(object):
         self.token, self.github = None, None
 
     @auth_check
-    def list_gists(self, private=False):
+    def list_gists(self, _all=False):
         """List all gists or public only ones"""
-        print('List of {0} gists: \n'.format(['public','all'][private]))
-        if private:
+        print('List of {0} gists: \n'.format(['public','all'][_all]))
+        if _all:
             for gist in self.github.iter_gists():
                 print('{0}{1}'.format(\
                         [g.name for g in gist.iter_files()][0].ljust(30), \
@@ -163,6 +163,8 @@ def main(argv):
     parser.add_argument('files', nargs='*', type=os.path.abspath, help=\
             'files which will be uploaded, separate multiple ones with space')
     parser.add_argument('-d', '--desc', help='gist description')
+    parser.add_argument('-p', '--private', help='create private gist', \
+            action='store_true')
     parser.add_argument('-a', '--anonymous', help='create an anonymous gist', \
             action='store_true')
 
@@ -174,11 +176,11 @@ def main(argv):
     gist = Gist()
 
     if args.list:
-        gist.list_gists(private=[False, True][args.private])
+        gist.list_gists(_all=[False, True][args.all])
     elif args.id and args.files:
-        gist.update_gist(args.id, args.description, args.files)
+        gist.update_gist(args.id, args.desc, args.files)
     elif args.files:
-        gist.create_gist(args.description, args.files, \
+        gist.create_gist(args.desc, args.files, \
                 [True, False][args.private], anonymous=args.anonymous, \
                 short_url=args.short)
     elif args.login:
