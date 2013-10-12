@@ -29,7 +29,7 @@ def auth_check(func):
                         '`pgist --login` to request token')
         try:
             return func(self, *args, **kwargs)
-        except GitHubError, ghe:
+        except GitHubError as ghe:
             if ghe.code in (401, 403):
                 raise SystemExit('Your current token is bad, please request it'\
                         ' with `pgist --login` again!')
@@ -58,7 +58,7 @@ def token_request():
     with open(os.path.expanduser('~/.pgist'), 'w') as tkf:
         tkf.write(auth.token)
 
-    print 'Done ...'
+    print('Done ...')
 
 def url_shorten(long_url):
     """Shorten a long url with git.io service"""
@@ -74,16 +74,16 @@ class Gist(object):
     @auth_check
     def list_gists(self, private=False):
         """List all gists or public only ones"""
-        print 'List of {0} gists: \n'.format(['public','all'][private])
+        print('List of {0} gists: \n'.format(['public','all'][private]))
         if private:
             for gist in self.github.iter_gists():
-                print [g.name for g in gist.iter_files()][0].ljust(30), \
-                        gist.html_url
+                print([g.name for g in gist.iter_files()][0].ljust(30), \
+                        gist.html_url)
         else:
             for gist in self.github.iter_gists():
                 if gist.public:
-                    print [g.name for g in gist.iter_files()][0].ljust(30), \
-                            gist.html_url
+                    print([g.name for g in gist.iter_files()][0].ljust(30), \
+                            gist.html_url)
 
     @auth_check
     def create_gist(self,
@@ -116,7 +116,7 @@ class Gist(object):
             gist = self.github.create_gist(description, upload_files, \
                     public)
 
-        print url_shorten(gist.html_url) if short_url else gist.html_url
+        print(url_shorten(gist.html_url) if short_url else gist.html_url)
 
 def main(argv):
     """The main body"""

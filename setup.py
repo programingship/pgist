@@ -11,17 +11,29 @@ README = open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup (
-    name="pgist",
-    version="0.1",
+    name='pgist',
+    version='0.1',
     packages=find_packages(),
-    license="Apache License 2.0",
-    description="A Python command-line wrapper with github3.py library to access GitHub Gist",
+    license=open('LICENSE').read(),
+    description='A Python command-line wrapper with github3.py library to access GitHub Gist',
     long_description=README,
-    author="Lingchao Xin",
-    author_email="douglarek@outlook.com",
-    keywords="python gist",
+    author='Lingchao Xin',
+    author_email='douglarek@outlook.com',
+    url='https://github.com/douglarek/pgist',
+    package_data={'': ['LICENSE',]},
     scripts=['pgist'],
-    install_requires=["github3.py >= 0.7.1"],
-    platforms="Python 2.7",
+    install_requires=['github3.py >= 0.7.1'],
+    classifiers=(
+            'Development Status :: 5 - Production/Stable',
+            'Intended Audience :: Developers',
+            'Natural Language :: English',
+            'License :: OSI Approved :: Apache Software License',
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.2',
+            'Programming Language :: Python :: 3.3',
+            'Programming Language :: Python :: Implementation :: CPython',
+        ),
     )
 
