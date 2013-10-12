@@ -65,6 +65,23 @@ def url_shorten(long_url):
     req = requests.post('http://git.io', data={'url' : long_url})
     return req.headers['location']
 
+def upload_files(files):
+    """Build up uploaded or updated files' structure"""
+    files = [f for f in files if os.path.exists(f)]
+    _upload_files = {}
+    for _ in files:
+        with open(_, 'r') as _fd:
+            content = _fd.readlines()
+            if not content:
+                continue
+            _upload_files[os.path.basename(_)] = {'content' : \
+                    ''.join(content)}
+
+    if not _upload_files:
+        raise SystemExit('All of your files are empty, WTF?')
+
+    return _upload_files
+
 class Gist(object):
     """Define known gist operations"""
 
@@ -96,27 +113,35 @@ class Gist(object):
         if description is None:
             description = ''
 
-        files = [f for f in files if os.path.exists(f)]
-        upload_files = {}
-        for _ in files:
-            with open(_, 'r') as _fd:
-                content = _fd.readlines()
-                if not content:
-                    continue
-                upload_files[os.path.basename(_)] = {'content' : \
-                        ''.join(content)}
-
-        if not upload_files:
-            raise SystemExit('All of your files are empty, WTF?')
-
         if anonymous:
             from github3 import create_gist
-            gist = create_gist(description, upload_files)
+            gist = create_gist(description, upload_files(files))
         else:
-            gist = self.github.create_gist(description, upload_files, \
+            gist = self.github.create_gist(description, upload_files(files), \
                     public)
 
         print(url_shorten(gist.html_url) if short_url else gist.html_url)
+
+    @auth_check
+    def update_gist(self,
+                    _id,
+                    description=None,
+                    files=()):
+        """Update a gist"""
+        if description is None:
+            description = ''
+
+        dest = None
+        for gist in self.github.iter_gists():
+            if _id == gist.id or _id == gist.html_url:
+                dest = gist
+                break
+
+        if dest is None:
+            raise SystemExit('The gist ID or URL is not found, is it right?')
+
+        if dest.edit(description, upload_files(files)):
+            print('<{0}> has been update successfully.'.format(dest.html_url))
 
 def main(argv):
     """The main body"""
@@ -131,6 +156,7 @@ def main(argv):
 
     parser.add_argument('-p', '--private', action='store_true')
     parser.add_argument('-s', '--short', action='store_true')
+    parser.add_argument('-i', '--id', help='update a gist with ID or URL')
 
     parser.add_argument('files', nargs='*', type=os.path.abspath, \
             help='files which will be uploaded, '\
@@ -152,6 +178,8 @@ def main(argv):
 
     if args.list:
         gist.list_gists(private=[False, True][args.private])
+    elif args.id and args.files:
+        gist.update_gist(args.id, args.description, args.files)
     elif args.files:
         gist.create_gist(args.description, args.files, \
                 [True, False][args.private], anonymous=args.anonymous, \
