@@ -163,9 +163,10 @@ def main(argv):
     parser.add_argument('files', nargs='*', type=os.path.abspath, help=\
             'files which will be uploaded, separate multiple ones with space')
     parser.add_argument('-d', '--desc', help='gist description')
-    parser.add_argument('-p', '--private', help='create private gist', \
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-p', '--private', help='create private gist', \
             action='store_true')
-    parser.add_argument('-a', '--anonymous', help='create an anonymous gist', \
+    group.add_argument('-a', '--anonymous', help='create an anonymous gist', \
             action='store_true')
 
     parser.add_argument('--login', help='request app token', \
