@@ -24,9 +24,15 @@ def auth_check(func):
                     self.token = tkf.readline()
                 self.github = login(token=self.token)
             except IOError:
-                raise SystemExit('Read .pgist file failed, please use '\
+                raise SystemExit('Read token file failed, please use '\
                         '`pgist --login` to request token')
-        return func(self, *args, **kwargs)
+        try:
+            return func(self, *args, **kwargs)
+        except GitHubError, ghe:
+            if ghe.code in (401, 403):
+                raise SystemExit('Your current token is bad, please request it'\
+                        ' with `pgist --login` again!')
+            raise SystemExit(ghe + '\nPlease report this bug to the author!')
     return check_wrapper
 
 def token_request():
@@ -93,16 +99,12 @@ class Gist(object):
         if not upload_files:
             raise SystemExit('All of your files are empty, WTF?')
 
-        try:
-            if anonymous:
-                from github3 import create_gist
-                gist = create_gist(description, upload_files)
-            else:
-                gist = self.github.create_gist(description, upload_files, \
-                        public)
-        except GitHubError, ghe:
-            # FIXME will fix if tested
-            raise SystemExit(ghe)
+        if anonymous:
+            from github3 import create_gist
+            gist = create_gist(description, upload_files)
+        else:
+            gist = self.github.create_gist(description, upload_files, \
+                    public)
 
         print gist.html_url
 
