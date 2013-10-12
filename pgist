@@ -151,24 +151,19 @@ def main(argv):
             'to access GitHub gists'
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument('-l', '--list', \
-            help='list of all your public gists, '\
-            'with `-p` show all contains private ones', \
+    parser.add_argument('-l', '--list', help='list public gists', \
             action='store_true')
 
-    parser.add_argument('-p', '--private', action='store_true')
-    parser.add_argument('-s', '--short', action='store_true')
+    parser.add_argument('-A', '--all', action='store_true', help=\
+            'list all gists')
+    parser.add_argument('-s', '--short', action='store_true', help=\
+            'show a short url when create a gist')
     parser.add_argument('-i', '--id', help='update a gist with ID or URL')
 
-    parser.add_argument('files', nargs='*', type=os.path.abspath, \
-            help='files which will be uploaded, '\
-            'separate multiple ones with space, '\
-            'with `-d` add description; '\
-            '`-p` create a private one; '\
-            '`-a` create an anonymous one; '\
-            '`-s` show a short url')
-    parser.add_argument('-d', '--description')
-    parser.add_argument('-a', '--anonymous', \
+    parser.add_argument('files', nargs='*', type=os.path.abspath, help=\
+            'files which will be uploaded, separate multiple ones with space')
+    parser.add_argument('-d', '--desc', help='gist description')
+    parser.add_argument('-a', '--anonymous', help='create an anonymous gist', \
             action='store_true')
 
     parser.add_argument('--login', help='request app token', \
