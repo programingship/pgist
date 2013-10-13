@@ -82,6 +82,19 @@ def upload_files(files):
 
     return _upload_files
 
+def find_gist_by_id(github, _id):
+    """Find a gist by _id"""
+    dest = None
+    for gist in github.iter_gists():
+        if _id == gist.id or _id == gist.html_url:
+            dest = gist
+            break
+
+    if dest is None:
+        raise SystemExit('The gist ID or URL is not found, is it right?')
+
+    return dest
+
 class Gist(object):
     """Define known gist operations"""
 
@@ -133,17 +146,17 @@ class Gist(object):
         if description is None:
             description = ''
 
-        dest = None
-        for gist in self.github.iter_gists():
-            if _id == gist.id or _id == gist.html_url:
-                dest = gist
-                break
+        dest = find_gist_by_id(self.github, _id)
 
-        if dest is None:
-            raise SystemExit('The gist ID or URL is not found, is it right?')
-
-        if dest.edit(description, upload_files(files)):
+        if gist.edit(description, upload_files(files)):
             print('<{0}> has been update successfully.'.format(dest.html_url))
+
+    @auth_check
+    def delete_gist(self, _id):
+        """Delete a gist by _id"""
+        dest = find_gist_by_id(self.github, _id)
+        if dest.delete():
+            print('<{0}> has been deleted successfully.'.format(dest.html_url))
 
 def main(argv):
     """The main body"""
@@ -163,6 +176,8 @@ def main(argv):
     parser.add_argument('files', nargs='*', type=os.path.abspath, help=\
             'files which will be uploaded, separate multiple ones with space')
     parser.add_argument('-d', '--desc', help='gist description')
+    parser.add_argument('-D', '--delete', help='detele a gist by ID or URL', \
+            action='store_true')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-p', '--private', help='create private gist', \
             action='store_true')
@@ -180,6 +195,8 @@ def main(argv):
         gist.list_gists(_all=[False, True][args.all])
     elif args.id and args.files:
         gist.update_gist(args.id, args.desc, args.files)
+    elif args.id and args.delete:
+        gist.delete_gist(args.id)
     elif args.files:
         gist.create_gist(args.desc, args.files, \
                 [True, False][args.private], anonymous=args.anonymous, \
