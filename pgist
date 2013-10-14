@@ -148,7 +148,7 @@ class Gist(object):
 
         dest = find_gist_by_id(self.github, _id)
 
-        if gist.edit(description, upload_files(files)):
+        if dest.edit(description, upload_files(files)):
             print('<{0}> has been update successfully.'.format(dest.html_url))
 
     @auth_check
