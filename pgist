@@ -161,7 +161,10 @@ class Gist(object):
     @auth_check
     def fork_gist(self, _id):
         """Fork a gist by ID or URL"""
-        new = self.github.gist(_id).fork()
+        try:
+            new = self.github.gist(_id).fork()
+        except AttributeError:
+            raise SystemExit('The gist {0} is not found !'.format(_id))
         if new is None:
             raise SystemExit('Enha, maybe you are forking yourself ?')
         print('{0} is forked to {1}'.format(_id, new.html_url))
@@ -184,14 +187,15 @@ def main(argv):
     parser.add_argument('files', nargs='*', type=os.path.abspath, help=\
             'files which will be uploaded, separate multiple ones with space')
     parser.add_argument('-d', '--desc', help='gist description')
-    parser.add_argument('-D', '--delete', help='detele a gist by ID or URL', \
+    group1 = parser.add_mutually_exclusive_group()
+    group1.add_argument('-D', '--delete', help='detele a gist by ID or URL', \
             action='store_true')
-    parser.add_argument('-f', '--fork', help='fork a gist by ID or URL', \
+    group1.add_argument('-f', '--fork', help='fork a gist by ID or URL', \
             action='store_true')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('-p', '--private', help='create private gist', \
+    group2 = parser.add_mutually_exclusive_group()
+    group2.add_argument('-p', '--private', help='create private gist', \
             action='store_true')
-    group.add_argument('-a', '--anonymous', help='create an anonymous gist', \
+    group2.add_argument('-a', '--anonymous', help='create an anonymous gist', \
             action='store_true')
 
     parser.add_argument('--login', help='request app token', \
