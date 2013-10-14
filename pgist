@@ -25,14 +25,14 @@ def auth_check(func):
                     self.token = tkf.readline()
                 self.github = login(token=self.token)
             except IOError:
-                raise SystemExit('Read token file failed, please use '\
-                        '`pgist --login` to request token')
+                raise SystemExit('Please use `pgist --login` authenticate ' \
+                        'gist on this computer')
         try:
             return func(self, *args, **kwargs)
         except GitHubError as ghe:
             if ghe.code in (401, 403):
-                raise SystemExit('Your current token is bad, please request it'\
-                        ' with `pgist --login` again!')
+                raise SystemExit('Your current gist authorize is bad, ' \
+                        'please use `pgist --login` to authenticate it again!')
             raise SystemExit(ghe + '\nPlease report this bug to the author!')
     return check_wrapper
 
@@ -52,7 +52,7 @@ def token_request():
     try:
         auth = authorize(user, password, scopes, note, note_url)
     except GitHubError:
-        raise SystemExit('Request app token failed, please check your username'\
+        raise SystemExit('Gist authorize failed, please check your username'\
                 'or password!')
 
     with open(os.path.expanduser('~/.pgist'), 'w') as tkf:
@@ -175,30 +175,31 @@ def main(argv):
             'to access GitHub gists'
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument('-l', '--list', help='list public gists', \
-            action='store_true')
+    parser.add_argument('-l', '--list', help='List public gists, with `-A` ' \
+            'list all ones', action='store_true')
 
-    parser.add_argument('-A', '--all', action='store_true', help=\
-            'list all gists')
-    parser.add_argument('-s', '--short', action='store_true', help=\
-            'show a short url when create a gist')
-    parser.add_argument('-i', '--id', help='update a gist with ID or URL')
+    parser.add_argument('-A', '--all', action='store_true')
+    parser.add_argument('-s', '--shorten', action='store_true', help=\
+            'Shorten the gist URL using git.io')
+    parser.add_argument('-u', '--update', metavar='[ID | URL]', \
+            help='Update an existing gist')
 
-    parser.add_argument('files', nargs='*', type=os.path.abspath, help=\
-            'files which will be uploaded, separate multiple ones with space')
-    parser.add_argument('-d', '--desc', help='gist description')
+    parser.add_argument('files', nargs='*', metavar='FILE*', \
+            type=os.path.abspath, help=\
+            'Files which will be uploaded, separate multiple ones with space')
+    parser.add_argument('-d', '--desc', help='Adds a description to your gist')
     group1 = parser.add_mutually_exclusive_group()
-    group1.add_argument('-D', '--delete', help='detele a gist by ID or URL', \
-            action='store_true')
-    group1.add_argument('-f', '--fork', help='fork a gist by ID or URL', \
-            action='store_true')
+    group1.add_argument('-D', '--delete', metavar='[ID | URL]', \
+            help='Detele an existing gist')
+    group1.add_argument('-f', '--fork', metavar='[ID | URL]', \
+            help='Fork an existing gist')
     group2 = parser.add_mutually_exclusive_group()
-    group2.add_argument('-p', '--private', help='create private gist', \
+    group2.add_argument('-p', '--private', help='Makes your gist private', \
             action='store_true')
-    group2.add_argument('-a', '--anonymous', help='create an anonymous gist', \
+    group2.add_argument('-a', '--anonymous', help='Create an anonymous gist', \
             action='store_true')
 
-    parser.add_argument('--login', help='request app token', \
+    parser.add_argument('--login', help='Authenticate gist on this computer', \
             action='store_true')
 
     args = parser.parse_args(argv)
@@ -207,16 +208,16 @@ def main(argv):
 
     if args.list:
         gist.list_gists(_all=[False, True][args.all])
-    elif args.id and args.files:
-        gist.update_gist(args.id, args.desc, args.files)
-    elif args.id and args.delete:
-        gist.delete_gist(args.id)
-    elif args.id and args.fork:
-        gist.fork_gist(args.id)
+    elif args.update and args.files:
+        gist.update_gist(args.update, args.desc, args.files)
+    elif args.delete:
+        gist.delete_gist(args.delete)
+    elif args.fork:
+        gist.fork_gist(args.fork)
     elif args.files:
         gist.create_gist(args.desc, args.files, \
                 [True, False][args.private], anonymous=args.anonymous, \
-                short_url=args.short)
+                short_url=args.shorten)
     elif args.login:
         token_request()
     else:
