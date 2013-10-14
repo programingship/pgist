@@ -70,13 +70,9 @@ def upload_files(files):
     files = [f for f in files if os.path.exists(f)]
     _upload_files = {}
     for _ in files:
-        if is_binary(_):
-            print('Warning: {0} is a binary file, ignore it.'.format(_))
-            continue
         with open(_, 'r') as _fd:
             content = _fd.readlines()
             if not content:
-                print('Warning: {0} is empty, ignore it.'.format(_))
                 continue
             _upload_files[os.path.basename(_)] = {'content' : \
                     ''.join(content)}
@@ -98,13 +94,6 @@ def find_gist_by_id(github, _id):
         raise SystemExit('The gist ID or URL is not found, is it right?')
 
     return dest
-
-def is_binary(_file):
-    """A _file is binary or not. http://stackoverflow.com/a/7392391/850357"""
-    textchars = ''.join([chr(x) for x in (7, 8, 9, 10, 12, 13, 27)] + \
-            range(0x20, 0x100))
-    is_binary_str = lambda bytes: bool(bytes.translate(None, textchars))
-    return is_binary_str(open(_file).read(1024))
 
 class Gist(object):
     """Define known gist operations"""
