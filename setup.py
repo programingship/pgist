@@ -12,7 +12,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup (
     name='pgist',
-    version='0.2',
+    version='0.2.1',
     packages=find_packages(),
     license=open('LICENSE').read(),
     description='A Python command-line wrapper with github3.py library to access GitHub Gist',
@@ -23,6 +23,7 @@ setup (
     package_data={'': ['LICENSE',]},
     scripts=['pgist'],
     install_requires=['github3.py >= 0.7.1'],
+    zip_safe=False,
     classifiers=(
             'Development Status :: 5 - Production/Stable',
             'Intended Audience :: Developers',
