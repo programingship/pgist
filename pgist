@@ -11,6 +11,7 @@ from github3.models import GitHubError
 import argparse
 from functools import wraps
 import os
+from urlparse import urlparse
 import requests
 import sys
 
@@ -95,6 +96,12 @@ def find_gist_by_id(github, _id):
 
     return dest
 
+def get_id(_id):
+    result = urlparse(_id)
+    if result.path:
+        return result.path.split('/')[-1]
+    raise SystemExit('Your url(id): {0} is invalid !'.format(url))
+
 class Gist(object):
     """Define known gist operations"""
 
@@ -146,7 +153,7 @@ class Gist(object):
         if description is None:
             description = ''
 
-        dest = find_gist_by_id(self.github, _id)
+        dest = find_gist_by_id(self.github,get_id( _id))
 
         if dest.edit(description, upload_files(files)):
             print('<{0}> has been update successfully.'.format(dest.html_url))
@@ -154,7 +161,7 @@ class Gist(object):
     @auth_check
     def delete_gist(self, _id):
         """Delete a gist by _id"""
-        dest = find_gist_by_id(self.github, _id)
+        dest = find_gist_by_id(self.github, get_id(_id))
         if dest.delete():
             print('<{0}> has been deleted successfully.'.format(dest.html_url))
 
@@ -162,7 +169,7 @@ class Gist(object):
     def fork_gist(self, _id):
         """Fork a gist by ID or URL"""
         try:
-            new = self.github.gist(_id).fork()
+            new = self.github.gist(get_id(_id)).fork()
         except AttributeError:
             raise SystemExit('The gist {0} is not found !'.format(_id))
         if new is None:
