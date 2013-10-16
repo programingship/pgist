@@ -112,7 +112,7 @@ class Gist(object):
                         gist.html_url))
         else:
             for gist in self.github.iter_gists():
-                if gist.public:
+                if gist.is_public():
                     print('{0}{1}'.format(\
                             [g.name for g in gist.iter_files()][0].ljust(30), \
                             gist.html_url))
