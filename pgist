@@ -11,9 +11,9 @@ from github3.models import GitHubError
 import argparse
 from functools import wraps
 import os
-from urlparse import urlparse
 import requests
 import sys
+from urlparse import urlparse
 
 def auth_check(func):
     """Decorator to note which object methods require authorization"""
@@ -97,10 +97,11 @@ def find_gist_by_id(github, _id):
     return dest
 
 def get_id(_id):
+    """Convert _id(ID or URL) to ID"""
     result = urlparse(_id)
     if result.path:
         return result.path.split('/')[-1]
-    raise SystemExit('Your url(id): {0} is invalid !'.format(url))
+    raise SystemExit('Your url(id): {0} is invalid !'.format(_id))
 
 class Gist(object):
     """Define known gist operations"""
@@ -153,7 +154,7 @@ class Gist(object):
         if description is None:
             description = ''
 
-        dest = find_gist_by_id(self.github,get_id( _id))
+        dest = find_gist_by_id(self.github, get_id( _id))
 
         if dest.edit(description, upload_files(files)):
             print('<{0}> has been update successfully.'.format(dest.html_url))
