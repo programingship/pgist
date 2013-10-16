@@ -13,7 +13,11 @@ from functools import wraps
 import os
 import requests
 import sys
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ImportError:
+    # py3k
+    from urllib.parse import urlparse
 
 def auth_check(func):
     """Decorator to note which object methods require authorization"""
