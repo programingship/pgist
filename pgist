@@ -43,7 +43,11 @@ def auth_check(func):
 
 def token_request():
     """Request app token from GitHub to operate gists"""
-    user = raw_input('GitHub username(default is {0}): '.format(getuser())) \
+    try:
+        prompt = raw_input
+    except NameError:
+        prompt = input
+    user = prompt('GitHub username(default is {0}): '.format(getuser())) \
             or getuser()
     password = ''
 
