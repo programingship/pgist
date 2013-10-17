@@ -56,7 +56,10 @@ def token_request():
 
     try:
         auth = authorize(user, password, scopes, note, note_url)
-    except GitHubError:
+    except GitHubError as ghe:
+        if 'two-factor' in str(ghe):
+            raise SystemExit('GitHub 2-factor auth is not supported ' \
+                    'temporarily o(>_<)o, please disable it to use pgist !')
         raise SystemExit('Gist authorize failed, please check your username'\
                 'or password!')
 
