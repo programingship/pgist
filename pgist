@@ -194,28 +194,29 @@ def main(argv):
             'to access GitHub gists'
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument('-l', '--list', help='List public gists, with `-A` ' \
+    parser.add_argument('-l', dest='list', help='List public gists, with `-A` '\
             'list all ones', action='store_true')
 
-    parser.add_argument('-A', '--all', action='store_true')
-    parser.add_argument('-s', '--shorten', action='store_true', help=\
+    parser.add_argument('-A', dest='all', action='store_true')
+    parser.add_argument('-s', dest='shorten', action='store_true', help=\
             'Shorten the gist URL using git.io')
-    parser.add_argument('-u', '--update', metavar='[ID | URL]', \
+    parser.add_argument('-u', dest='update', metavar='[ID | URL]', \
             help='Update an existing gist')
 
-    parser.add_argument('files', nargs='*', metavar='FILE*', \
+    parser.add_argument(dest='files', nargs='*', metavar='FILE*', \
             type=os.path.abspath, help=\
             'Files which will be uploaded, separate multiple ones with space')
-    parser.add_argument('-d', '--desc', help='Adds a description to your gist')
+    parser.add_argument('-d', dest='desc', metavar='DESCRIPTION', \
+            help='Adds a description to your gist')
     group1 = parser.add_mutually_exclusive_group()
-    group1.add_argument('-D', '--delete', metavar='[ID | URL]', \
+    group1.add_argument('-D', dest='delete', metavar='[ID | URL]', \
             help='Detele an existing gist')
-    group1.add_argument('-f', '--fork', metavar='[ID | URL]', \
+    group1.add_argument('-f', dest='fork', metavar='[ID | URL]', \
             help='Fork an existing gist')
     group2 = parser.add_mutually_exclusive_group()
-    group2.add_argument('-p', '--private', help='Makes your gist private', \
+    group2.add_argument('-p', dest='private', help='Makes your gist private', \
             action='store_true')
-    group2.add_argument('-a', '--anonymous', help='Create an anonymous gist', \
+    group2.add_argument('-a', dest='anonymous', help='Create an anonymous gist',
             action='store_true')
 
     parser.add_argument('--login', help='Authenticate gist on this computer', \
