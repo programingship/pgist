@@ -9,13 +9,13 @@ You can install with `pip`:
 
 ::
 
-    pip install pgist
+    pip install pgist --upgrade
 
 Or with `easy_install`:
 
 ::
 
-    easy_install pgist
+    easy_install -U pgist
 
 Command
 -------

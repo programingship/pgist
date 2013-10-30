@@ -168,7 +168,7 @@ class Gist(object):
         dest = find_gist_by_id(self.github, get_id( _id))
 
         if dest.edit(description, upload_files(files)):
-            print('<{0}> has been update successfully.'.format(dest.html_url))
+            print('<{0}> has been updated successfully.'.format(dest.html_url))
 
     @auth_check
     def delete_gist(self, _id):
