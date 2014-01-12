@@ -195,7 +195,7 @@ def main(argv):
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument('-l', dest='list', help='List public gists, with `-A` '\
-            'list all ones', action='store_true')
+            'add -A for Private Gists', action='store_true')
 
     parser.add_argument('-A', dest='all', action='store_true')
     parser.add_argument('-s', dest='shorten', action='store_true', help=\
