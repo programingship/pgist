@@ -55,7 +55,7 @@ List your public gists:
 
     pgist -l
 
-And list all contains private ones:
+And list all gists including private ones:
 
 ::
 
