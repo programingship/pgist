@@ -3,16 +3,16 @@
 """A Python command-line wrapper with github3.py library to access GitHub Gist.
 """
 
-from github3 import authorize
-from getpass import getuser, getpass
-from github3 import login
+import argparse
+import os
+import sys
+from functools import wraps
+from getpass import getpass, getuser
+
+import requests
+from github3 import authorize, login
 from github3.models import GitHubError
 
-import argparse
-from functools import wraps
-import os
-import requests
-import sys
 try:
     from urlparse import urlparse
 except ImportError:
