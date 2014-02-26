@@ -6,6 +6,7 @@
 import argparse
 import os
 import sys
+import uuid
 from functools import wraps
 from getpass import getpass, getuser
 
@@ -54,7 +55,8 @@ def token_request():
     while not password:
         password = getpass('GitHub password for {0}: '.format(user))
 
-    note = 'pgist'
+    # Ensure github tokens have a unique description
+    note = 'the unique pgist -> {0}'.format(uuid.uuid4())
     note_url = 'https://github.com/douglarek/pgist'
     scopes = ['user', 'gist']
 
