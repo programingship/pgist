@@ -58,7 +58,7 @@ def token_request():
     # Ensure github tokens have a unique description
     note = 'the unique pgist -> {0}'.format(uuid.uuid4())
     note_url = 'https://github.com/douglarek/pgist'
-    scopes = ['user', 'gist']
+    scopes = ['gist']
 
     try:
         auth = authorize(user, password, scopes, note, note_url)
