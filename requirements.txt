@@ -1,2 +1,2 @@
-click==0.1
+git+https://github.com/mitsuhiko/click.git@master#egg=click
 github3.py==0.7.1
