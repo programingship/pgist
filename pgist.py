@@ -191,6 +191,13 @@ class Gist(object):
         print('{0} is forked to {1}'.format(_id, new.html_url))
 
 
+def print_help(ctx, value):
+    """A callback func, when type `-h`, show help"""
+    if not value:
+        return
+    print(ctx.format_help())
+    ctx.exit()
+
 @click.command()
 @click.option('-l', 'list_', is_flag=True, help='List public gists, with `-A` list all ones')
 @click.option('-A', 'all_', is_flag=True)
@@ -202,6 +209,7 @@ class Gist(object):
 @click.option('-p', 'private', is_flag=True, help='Makes your gist private')
 @click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
 @click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
+@click.option('-h', is_flag=True, callback=print_help, expose_value=False, is_eager=True)
 @click.argument('files', nargs=-1)
 @click.pass_context
 def cli(ctx, files, list_, all_, shorten, update, desc, delete, fork, private, anonymous, login):
@@ -219,7 +227,7 @@ def cli(ctx, files, list_, all_, shorten, update, desc, delete, fork, private, a
     elif login:
         token_request()
     else:
-        print ctx.format_help()
+        print(ctx.format_help())
 
 if __name__ == '__main__':
     cli()
