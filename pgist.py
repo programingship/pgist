@@ -192,8 +192,8 @@ class Gist(object):
 
 
 @click.command()
-@click.option('-l', 'list', is_flag=True, help='List public gists, with `-A` list all ones')
-@click.option('-A', 'all', is_flag=True)
+@click.option('-l', 'list_', is_flag=True, help='List public gists, with `-A` list all ones')
+@click.option('-A', 'all_', is_flag=True)
 @click.option('-s', 'shorten', is_flag=True, help='Shorten the gist URL using git.io')
 @click.option('-u', 'update', metavar='URL/ID', help='Update an existing gist')
 @click.option('-d', 'desc', metavar='DESCRIPTION', help='Adds a description to your gist')
@@ -203,13 +203,13 @@ class Gist(object):
 @click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
 @click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
 @click.argument('files', nargs=-1)
-def cli(files, list, all, shorten, update, desc, delete, fork, private,
+def cli(files, list_, all_, shorten, update, desc, delete, fork, private,
         anonymous, login):
     """A Python command-line wrapper with github3.py library to access GitHub gists"""
     gist = Gist()
 
-    if list:
-        gist.list_gists(_all=all)
+    if list_:
+        gist.list_gists(_all=all_)
     elif update and files:
         gist.update_gist(update, desc, files)
     elif delete:
