@@ -13,16 +13,19 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup (
     name='pgist',
     version='0.3.2',
-    packages=find_packages(),
     license=open('LICENSE').read(),
     description='A Python command-line wrapper with github3.py library to access GitHub Gist',
     long_description=README,
     author='Lingchao Xin',
-    author_email='douglarek@outlook.com',
+    author_email='douglarek@gmail.com',
     url='https://github.com/douglarek/pgist',
+    py_modules=['pgist'],
     package_data={'': ['LICENSE',]},
-    scripts=['pgist'],
-    install_requires=['github3.py >= 0.7.1'],
+    install_requires=['click >=0.1', 'github3.py >= 0.7.1'],
+    entry_points='''
+        [console_scripts]
+        pgist=pgist:cli
+    ''',
     zip_safe=False,
     classifiers=(
             'Development Status :: 5 - Production/Stable',
@@ -32,8 +35,6 @@ setup (
             'Programming Language :: Python',
             'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.2',
-            'Programming Language :: Python :: 3.3',
             'Programming Language :: Python :: Implementation :: CPython',
         ),
     )

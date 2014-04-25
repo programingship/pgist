@@ -3,13 +3,13 @@
 """A Python command-line wrapper with github3.py library to access GitHub Gist.
 """
 
-import argparse
 import os
 import sys
 import uuid
 from functools import wraps
 from getpass import getpass, getuser
 
+import click
 import requests
 from github3 import authorize, login
 from github3.models import GitHubError
@@ -81,7 +81,7 @@ def url_shorten(long_url):
 
 def upload_files(files):
     """Build up uploaded or updated files' structure"""
-    files = [f for f in files if os.path.exists(f)]
+    files = [f for f in files if f and os.path.exists(f)]
     _upload_files = {}
     for _ in files:
         with open(_, 'r') as _fd:
@@ -190,63 +190,31 @@ class Gist(object):
             raise SystemExit('Enha, maybe you are forking yourself ?')
         print('{0} is forked to {1}'.format(_id, new.html_url))
 
-def main(argv):
-    """The main body"""
-    description = 'A Python command-line wrapper with github3.py library '\
-            'to access GitHub gists'
-    parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument('-l', dest='list', help='List public gists, use `-A` '\
-            'to include private gists', action='store_true')
-
-    parser.add_argument('-A', dest='all', action='store_true')
-    parser.add_argument('-s', dest='shorten', action='store_true', help=\
-            'Shorten the gist URL using git.io')
-    parser.add_argument('-u', dest='update', metavar='[ID | URL]', \
-            help='Update an existing gist')
-
-    parser.add_argument(dest='files', nargs='*', metavar='FILE*', \
-            type=os.path.abspath, help=\
-            'Files which will be uploaded, separate multiple ones with space')
-    parser.add_argument('-d', dest='desc', metavar='DESCRIPTION', \
-            help='Adds a description to your gist')
-    group1 = parser.add_mutually_exclusive_group()
-    group1.add_argument('-D', dest='delete', metavar='[ID | URL]', \
-            help='Detele an existing gist')
-    group1.add_argument('-f', dest='fork', metavar='[ID | URL]', \
-            help='Fork an existing gist')
-    group2 = parser.add_mutually_exclusive_group()
-    group2.add_argument('-p', dest='private', help='Makes your gist private', \
-            action='store_true')
-    group2.add_argument('-a', dest='anonymous', help='Create an anonymous gist',
-            action='store_true')
-
-    parser.add_argument('--login', help='Authenticate gist on this computer', \
-            action='store_true')
-
-    args = parser.parse_args(argv)
-
+@click.command()
+@click.option('-l', 'list', is_flag=True, help='List public gists, with `-A` list all ones')
+@click.option('-A', 'all', is_flag=True)
+@click.option('-s', 'shorten', is_flag=True, help='Shorten the gist URL using git.io')
+@click.option('-u', 'update', metavar='URL/ID', help='Update an existing gist')
+@click.option('-d', 'desc', metavar='DESCRIPTION', help='Adds a description to your gist')
+@click.option('-D', 'delete', metavar='URL/ID', help='Detele an existing gist')
+@click.option('-f', 'fork', metavar='URL/ID', help='Fork an existing gist')
+@click.option('-p', 'private', is_flag=True, help='Makes your gist private')
+@click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
+@click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
+@click.argument('files', nargs=-1)
+def cli(files, list, all, shorten, update, desc, delete, fork, private,
+        anonymous, login):
+    """A Python command-line wrapper with github3.py library to access GitHub gists"""
     gist = Gist()
 
-    if args.list:
-        gist.list_gists(_all=[False, True][args.all])
-    elif args.update and args.files:
-        gist.update_gist(args.update, args.desc, args.files)
-    elif args.delete:
-        gist.delete_gist(args.delete)
-    elif args.fork:
-        gist.fork_gist(args.fork)
-    elif args.files:
-        gist.create_gist(args.desc, args.files, \
-                [True, False][args.private], anonymous=args.anonymous, \
-                short_url=args.shorten)
-    elif args.login:
+    if list:
+        gist.list_gists(_all=all)
+    elif update and files:
+        gist.update_gist(update, desc, files)
+    elif delete:
+        gist.delete_gist(delete)
+    elif files:
+        gist.create_gist(desc, files, [True, False][private], anonymous=anonymous, short_url=shorten)
+    elif login:
         token_request()
-    else:
-        parser.print_help()
-
-if __name__ == '__main__':
-    try:
-        sys.exit(main(sys.argv[1:]))
-    except KeyboardInterrupt:
-        raise SystemExit('\nOk, Goodbye.')

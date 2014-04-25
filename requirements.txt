@@ -1,2 +1,2 @@
+click==0.1
 github3.py==0.7.1
-requests==2.2.1
