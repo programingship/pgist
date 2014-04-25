@@ -203,8 +203,8 @@ class Gist(object):
 @click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
 @click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
 @click.argument('files', nargs=-1)
-def cli(files, list_, all_, shorten, update, desc, delete, fork, private,
-        anonymous, login):
+@click.pass_context
+def cli(ctx, files, list_, all_, shorten, update, desc, delete, fork, private, anonymous, login):
     """A Python command-line wrapper with github3.py library to access GitHub gists"""
     gist = Gist()
 
@@ -218,3 +218,8 @@ def cli(files, list_, all_, shorten, update, desc, delete, fork, private,
         gist.create_gist(desc, files, [True, False][private], anonymous=anonymous, short_url=shorten)
     elif login:
         token_request()
+    else:
+        print ctx.format_help()
+
+if __name__ == '__main__':
+    cli()
