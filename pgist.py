@@ -81,15 +81,15 @@ def url_shorten(long_url):
 
 def upload_files(files):
     """Build up uploaded or updated files' structure"""
-    files = [f for f in files if f and os.path.exists(f)]
     _upload_files = {}
-    for _ in files:
-        with open(_, 'r') as _fd:
-            content = _fd.readlines()
-            if not content:
-                continue
-            _upload_files[os.path.basename(_)] = {'content' : \
-                    ''.join(content)}
+    for obj in files:
+        content = obj.readlines()
+        if not content:
+            continue
+        _upload_files[obj.name.split('/')[-1]] = {'content' : \
+                ''.join(content)}
+        obj.close()
+        del obj
 
     if not _upload_files:
         raise SystemExit('All of your files are empty, WTF?')
@@ -210,7 +210,7 @@ def print_help(ctx, value):
 @click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
 @click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
 @click.option('-h', is_flag=True, callback=print_help, expose_value=False, is_eager=True)
-@click.argument('files', nargs=-1)
+@click.argument('files', nargs=-1, type=click.File('rb'))
 @click.pass_context
 def cli(ctx, files, list_, all_, shorten, update, desc, delete, fork, private, anonymous, login):
     """A Python command-line wrapper with github3.py library to access GitHub gists"""
