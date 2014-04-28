@@ -9,7 +9,7 @@ You can install with `pip`:
 
 ::
 
-    pip install pgist --upgrade
+    pip install pgist -U
 
 Or with `easy_install`:
 
@@ -24,6 +24,14 @@ To upload the contents of `a.py` just:
 ::
 
     pgist a.py
+
+Or you can accept stdin as a file like this:
+
+::
+
+    pgist -
+
+type `ctrl+D` to end stdin and `ctrl+C` to abort.
 
 Upload multiple files:
 
