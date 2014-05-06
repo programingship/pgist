@@ -21,7 +21,7 @@ setup (
     url='https://github.com/douglarek/pgist',
     py_modules=['pgist'],
     package_data={'': ['LICENSE',]},
-    install_requires=['click >= 0.1', 'github3.py >= 0.7.1'],
+    install_requires=['click >= 0.2', 'github3.py >= 0.7.1'],
     entry_points='''
         [console_scripts]
         pgist=pgist:cli

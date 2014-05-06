@@ -195,7 +195,7 @@ def print_help(ctx, value):
     """A callback func, when type `-h`, show help"""
     if not value:
         return
-    print(ctx.format_help())
+    print(ctx.get_help())
     ctx.exit()
 
 @click.command()
@@ -227,7 +227,7 @@ def cli(ctx, files, list_, all_, shorten, update, desc, delete, fork, private, a
     elif login:
         token_request()
     else:
-        print(ctx.format_help())
+        print(ctx.get_help())
 
 if __name__ == '__main__':
     cli()
