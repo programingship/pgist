@@ -36,3 +36,6 @@ nosetests.xml
 
 # Intellij Idea
 .idea
+
+# Sphinx docs
+docs/_build
