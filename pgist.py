@@ -72,7 +72,7 @@ def token_request():
     with open(os.path.expanduser('~/.pgist'), 'w') as tkf:
         tkf.write(auth.token)
 
-    print('Done ...')
+    click.echo('Done ...')
 
 def url_shorten(long_url):
     """Shorten a long url with git.io service"""
@@ -125,16 +125,16 @@ class Gist(object):
     @auth_check
     def list_gists(self, _all=False):
         """List all gists or public only ones"""
-        print('List of {0} gists: \n'.format(['public','all'][_all]))
+        click.echo('List of {0} gists: \n'.format(['public','all'][_all]))
         if _all:
             for gist in self.github.iter_gists():
-                print('{0}{1}'.format(\
+                click.echo('{0}{1}'.format(\
                         [g.name for g in gist.iter_files()][0].ljust(30), \
                         gist.html_url))
         else:
             for gist in self.github.iter_gists():
                 if gist.is_public():
-                    print('{0}{1}'.format(\
+                    click.echo('{0}{1}'.format(\
                             [g.name for g in gist.iter_files()][0].ljust(30), \
                             gist.html_url))
 
@@ -156,7 +156,7 @@ class Gist(object):
             gist = self.github.create_gist(description, upload_files(files), \
                     public)
 
-        print(url_shorten(gist.html_url) if short_url else gist.html_url)
+        click.echo(url_shorten(gist.html_url) if short_url else gist.html_url)
 
     @auth_check
     def update_gist(self,
@@ -170,14 +170,14 @@ class Gist(object):
         dest = find_gist_by_id(self.github, get_id( _id))
 
         if dest.edit(description, upload_files(files)):
-            print('<{0}> has been updated successfully.'.format(dest.html_url))
+            click.echo('<{0}> has been updated successfully.'.format(dest.html_url))
 
     @auth_check
     def delete_gist(self, _id):
         """Delete a gist by _id"""
         dest = find_gist_by_id(self.github, get_id(_id))
         if dest.delete():
-            print('<{0}> has been deleted successfully.'.format(dest.html_url))
+            click.echo('<{0}> has been deleted successfully.'.format(dest.html_url))
 
     @auth_check
     def fork_gist(self, _id):
@@ -188,14 +188,14 @@ class Gist(object):
             raise SystemExit('The gist {0} is not found !'.format(_id))
         if new is None:
             raise SystemExit('Enha, maybe you are forking yourself ?')
-        print('{0} is forked to {1}'.format(_id, new.html_url))
+        click.echo('{0} is forked to {1}'.format(_id, new.html_url))
 
 
 def print_help(ctx, value):
     """A callback func, when type `-h`, show help"""
     if not value:
         return
-    print(ctx.get_help())
+    click.echo(ctx.get_help())
     ctx.exit()
 
 @click.command()
@@ -227,7 +227,7 @@ def cli(ctx, files, list_, all_, shorten, update, desc, delete, fork, private, a
     elif login:
         token_request()
     else:
-        print(ctx.get_help())
+        click.echo(ctx.get_help())
 
 if __name__ == '__main__':
     cli()
