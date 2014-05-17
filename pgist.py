@@ -210,7 +210,7 @@ def print_help(ctx, value):
 @click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
 @click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
 @click.option('-h', is_flag=True, callback=print_help, expose_value=False, is_eager=True)
-@click.argument('files', nargs=-1, type=click.File())
+@click.argument('files', nargs=-1, required=False, type=click.File())
 @click.pass_context
 def cli(ctx, files, list_, all_, shorten, update, desc, delete, fork, private, anonymous, login):
     """A Python command-line wrapper with github3.py library to access GitHub gists"""
