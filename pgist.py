@@ -208,7 +208,7 @@ def print_help(ctx, value):
 @click.option('-f', 'fork', metavar='URL/ID', help='Fork an existing gist')
 @click.option('-p', 'private', is_flag=True, help='Makes your gist private')
 @click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
-@click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
+@click.option('--login', 'login', is_flag=True, help='Authenticate gist on this computer')
 @click.option('-h', is_flag=True, callback=print_help, expose_value=False, is_eager=True)
 @click.argument('files', nargs=-1, required=False, type=click.File())
 @click.pass_context
