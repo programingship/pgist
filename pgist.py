@@ -6,7 +6,7 @@
 import os
 import sys
 import uuid
-from functools import wraps
+from functools import wraps, update_wrapper
 from getpass import getpass, getuser
 
 import click
@@ -191,7 +191,14 @@ class Gist(object):
         click.echo('{0} is forked to {1}'.format(_id, new.html_url))
 
 
-def print_help(ctx, value):
+def compatcallback(f):
+    if getattr(click, '__version__', '0.0') >= '2.0':
+        return f
+    return update_wrapper(lambda ctx, value: f(ctx, None, value), f)
+
+
+@compatcallback
+def print_help(ctx, param, value):
     """A callback func, when type `-h`, show help"""
     if not value:
         return
