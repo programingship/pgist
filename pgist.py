@@ -128,15 +128,13 @@ class Gist(object):
         click.echo('List of {0} gists: \n'.format(['public','all'][_all]))
         if _all:
             for gist in self.github.iter_gists():
-                click.echo('{0}{1}'.format(\
-                        [g.name for g in gist.iter_files()][0].ljust(30), \
-                        gist.html_url))
+                click.echo('{0}{1}'.format(gist.html_url.ljust(50),
+                    [g.name for g in gist.iter_files()][0]))
         else:
             for gist in self.github.iter_gists():
                 if gist.is_public():
-                    click.echo('{0}{1}'.format(\
-                            [g.name for g in gist.iter_files()][0].ljust(30), \
-                            gist.html_url))
+                    click.echo('{0}{1}'.format(gist.html_url.ljust(50),
+                        [g.name for g in gist.iter_files()][0]))
 
     @auth_check
     def create_gist(self,
