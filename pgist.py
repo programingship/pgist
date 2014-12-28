@@ -5,6 +5,11 @@
 
 import os
 import sys
+
+if sys.version_info.major < 2:
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+
 import uuid
 from functools import wraps, update_wrapper
 from getpass import getpass, getuser
