@@ -12,7 +12,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup (
     name='pgist',
-    version='0.4.2',
+    version='0.4.3',
     license=open('LICENSE').read(),
     description='A Python command-line wrapper with github3.py library to access GitHub Gist',
     long_description=README,
