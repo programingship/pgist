@@ -1,6 +1,12 @@
 pgist
 =====
 
+.. image:: https://img.shields.io/pypi/v/pgist.svg
+   :target: https://pypi.python.org/pypi/pgist
+
+.. image:: https://img.shields.io/pypi/dm/pgist.svg
+   :target: https://pypi.python.org/pypi/pgist
+
 A Python command-line wrapper with github3.py library to access GitHub Gist.
 
 Installation
