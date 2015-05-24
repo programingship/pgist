@@ -5,8 +5,13 @@
 
 import os
 import sys
+
+if sys.version_info.major < 2:
+    reload(sys)
+    sys.setdefaultencoding('utf-8')
+
 import uuid
-from functools import wraps
+from functools import wraps, update_wrapper
 from getpass import getpass, getuser
 
 import click
@@ -128,15 +133,13 @@ class Gist(object):
         click.echo('List of {0} gists: \n'.format(['public','all'][_all]))
         if _all:
             for gist in self.github.iter_gists():
-                click.echo('{0}{1}'.format(\
-                        [g.name for g in gist.iter_files()][0].ljust(30), \
-                        gist.html_url))
+                click.echo('{0}{1}'.format(gist.html_url.ljust(50),
+                    [g.name for g in gist.iter_files()][0]))
         else:
             for gist in self.github.iter_gists():
                 if gist.is_public():
-                    click.echo('{0}{1}'.format(\
-                            [g.name for g in gist.iter_files()][0].ljust(30), \
-                            gist.html_url))
+                    click.echo('{0}{1}'.format(gist.html_url.ljust(50),
+                        [g.name for g in gist.iter_files()][0]))
 
     @auth_check
     def create_gist(self,
@@ -191,7 +194,14 @@ class Gist(object):
         click.echo('{0} is forked to {1}'.format(_id, new.html_url))
 
 
-def print_help(ctx, value):
+def compatcallback(f):
+    if getattr(click, '__version__', '0.0') >= '2.0':
+        return f
+    return update_wrapper(lambda ctx, value: f(ctx, None, value), f)
+
+
+@compatcallback
+def print_help(ctx, param, value):
     """A callback func, when type `-h`, show help"""
     if not value:
         return
@@ -208,7 +218,7 @@ def print_help(ctx, value):
 @click.option('-f', 'fork', metavar='URL/ID', help='Fork an existing gist')
 @click.option('-p', 'private', is_flag=True, help='Makes your gist private')
 @click.option('-a', 'anonymous', is_flag=True, help='Create an anonymous gist')
-@click.option('--login', 'login', is_flag=True, help='Create an anonymous gist')
+@click.option('--login', 'login', is_flag=True, help='Authenticate gist on this computer')
 @click.option('-h', is_flag=True, callback=print_help, expose_value=False, is_eager=True)
 @click.argument('files', nargs=-1, required=False, type=click.File())
 @click.pass_context

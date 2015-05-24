@@ -1,6 +1,12 @@
 pgist
 =====
 
+.. image:: https://img.shields.io/pypi/v/pgist.svg
+   :target: https://pypi.python.org/pypi/pgist
+
+.. image:: https://img.shields.io/pypi/dm/pgist.svg
+   :target: https://pypi.python.org/pypi/pgist
+
 A Python command-line wrapper with github3.py library to access GitHub Gist.
 
 Installation
@@ -100,3 +106,9 @@ Licensed under the Apache 2.0 license. `Bug-reports, and pull requests`_ are wel
 
 .. _github3.py: https://github.com/sigmavirus24/github3.py
 .. _`Bug-reports, and pull requests`: https://github.com/douglarek/pgist
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/douglarek/pgist/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
